@@ -26,6 +26,7 @@ type GameState struct {
 func (gameState *GameState) GetBoard() *Board {
 	return gameState.board
 }
+
 func (gameState *GameState) GetGamePhase() Phase {
 	return gameState.gamePhase
 }
@@ -41,13 +42,11 @@ func NewGame() *GameState {
 }
 
 func (gameState *GameState) Fire(pRow1, pCol1 int) (string, error) {
-
 	board := gameState.board
 	err := outOfBoundsCheck(pRow1, pCol1, None, 1, board.GetGrid())
 	if err != nil {
 		return "", err
 	}
-
 	entity := board.Retrieve(pRow1, pCol1).GetContents()
 	sRow1 := entity.GetStartPosition().GetRow()
 	sCol1 := entity.GetStartPosition().GetColumn()
@@ -69,7 +68,6 @@ func (gameState *GameState) Fire(pRow1, pCol1 int) (string, error) {
 		entity.GetIntegrity()[0] = true
 		return result, nil
 	}
-
 	if entity.GetState() {
 		result = fmt.Sprintf("%v %v", Sunk, entity.GetType())
 	}
@@ -108,16 +106,13 @@ func outOfBoundsCheck(row, col int, direction Direction, length int, grid Grid) 
 		start = row
 	}
 	collisionCheck := start + length
-
 	if collisionCheck > len(grid) {
 		return fmt.Errorf("ship out of grid bounds")
 	}
-
 	return nil
 }
 
 func shipCollisionDetection(row, col int, direction Direction, ship *Ship, board Board) error {
-
 	for i := range ship.integrity {
 		var iRow, iCol = row, col
 		switch direction {
@@ -142,7 +137,6 @@ func (gameState *GameState) Exit() {
 
 func (gameState *GameState) PlaceShip(ship_name EntityName, direction Direction, row, col int) (string, error) {
 	ship := ships[ship_name]
-
 	if shipAlreadyPlaced(*ship) {
 		return "", fmt.Errorf("ship %v already placed", ship_name)
 	}
@@ -156,14 +150,11 @@ func (gameState *GameState) PlaceShip(ship_name EntityName, direction Direction,
 		return "", err
 	}
 	ship.direction = direction
-	//ship.startPosition = position
-	// var iRow, iCol = position.GetRow(), position.GetColumn()
 	board.Place(row, col, ship)
 	ship.startPosition = board.Retrieve(row, col)
 	if allShipsPlaced() {
 		fmt.Println(gameState.gamePhase)
 		gameState.setGamePhase(Battle)
-
 		fmt.Println(gameState.gamePhase)
 	}
 	return fmt.Sprintf("%v %v", ship.class, Placed), nil

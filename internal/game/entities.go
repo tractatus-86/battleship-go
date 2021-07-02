@@ -35,15 +35,19 @@ func NewWater() *Water {
 func (water *Water) GetType() EntityName {
 	return water.name
 }
+
 func (water *Water) GetIntegrity() []bool {
 	return water.integrity
 }
+
 func (water *Water) GetDirection() Direction {
 	return water.direction
 }
+
 func (water *Water) GetStartPosition() *Position {
 	return water.startPosition
 }
+
 func (water *Water) GetState() bool {
 	return water.integrity[0]
 }
@@ -51,6 +55,7 @@ func (water *Water) GetState() bool {
 func (water *Water) setDirection(direction Direction) {
 	water.direction = None
 }
+
 func (water *Water) setStartPosition(position *Position) {
 	water.startPosition = position
 }
@@ -65,15 +70,19 @@ type Ship struct {
 func (ship *Ship) GetType() EntityName {
 	return ship.class
 }
+
 func (ship *Ship) GetIntegrity() []bool {
 	return ship.integrity
 }
+
 func (ship *Ship) GetDirection() Direction {
 	return ship.direction
 }
+
 func (ship *Ship) GetStartPosition() *Position {
 	return ship.startPosition
 }
+
 func (ship *Ship) GetState() bool {
 	sunk := true
 	for _, b := range ship.integrity {
@@ -85,6 +94,7 @@ func (ship *Ship) GetState() bool {
 func (ship *Ship) setDirection(direction Direction) {
 	ship.direction = direction
 }
+
 func (ship *Ship) setStartPosition(position *Position) {
 	ship.startPosition = position
 }

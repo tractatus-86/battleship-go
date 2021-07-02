@@ -21,6 +21,7 @@ type Mark = string
 func toColumn(i int) int {
 	return i + 1
 }
+
 func toRow(i int) string {
 	return string(rune(i + 65))
 }
@@ -56,11 +57,9 @@ func (printer *Printer) PrintDisplay() {
 	printer.result.Reset()
 	printer.err.Reset()
 	printer.input.Reset()
-
 }
 
 func writeColumnLabels(page *bytes.Buffer, gridLen int) {
-
 	page.WriteString(Delimiter)
 	page.WriteString(Delimiter)
 	page.WriteString(Delimiter)
@@ -72,7 +71,6 @@ func writeColumnLabels(page *bytes.Buffer, gridLen int) {
 		page.WriteString(Delimiter)
 	}
 	page.WriteString("\n")
-
 }
 
 func writeRowLabel(i int, page *bytes.Buffer) {
@@ -101,12 +99,15 @@ func writeCellLeftBoarder(page *bytes.Buffer) {
 	page.WriteString(Wall)
 	page.WriteString(Delimiter)
 }
+
 func writeCellRightBoarder(page *bytes.Buffer) {
 	page.WriteString(Delimiter)
 }
+
 func writeRowTerminator(page *bytes.Buffer) {
 	page.WriteString("\n")
 }
+
 func writeCell(pos *game.Position, page *bytes.Buffer) {
 	contents := pos.GetContents()
 	if contents.GetType() == game.WATER {
@@ -116,12 +117,10 @@ func writeCell(pos *game.Position, page *bytes.Buffer) {
 			page.WriteString(Miss)
 		}
 	} else {
-
 		pRow := pos.GetRow()
 		sRow := contents.GetStartPosition().GetRow()
 		pCol := pos.GetColumn()
 		sCol := contents.GetStartPosition().GetColumn()
-
 		if contents.GetDirection() == game.Down && contents.GetIntegrity()[pRow-sRow] {
 			page.WriteString(Hit)
 		} else if contents.GetDirection() == game.Right && contents.GetIntegrity()[pCol-sCol] {
@@ -136,17 +135,13 @@ func writeCell(pos *game.Position, page *bytes.Buffer) {
 func (printer *Printer) UpdateGameGrid(grid game.Grid) {
 	page := printer.page
 	page.Reset()
-
 	writeColumnLabels(page, len(grid))
 	for i, j := range grid {
 		writeRowLabel(i, page)
 		for _, pos := range j {
 			writeCellLeftBoarder(page)
-
 			writeCell(pos, page)
-
 			writeCellRightBoarder(page)
-
 		}
 		writeRowTerminator(page)
 	}

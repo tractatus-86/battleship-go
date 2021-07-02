@@ -9,15 +9,19 @@ type Position struct {
 func (position *Position) GetRow() int {
 	return position.row
 }
+
 func (position *Position) GetColumn() int {
 	return position.col
 }
+
 func (position *Position) GetContents() Entity {
 	return *position.entity
 }
 
 type Direction = string
+
 type Grid = [][]*Position
+
 type Board struct {
 	grid Grid
 }
@@ -38,7 +42,6 @@ const (
 
 func NewBoard() *Board {
 	size := 10
-
 	var grid = make([][]*Position, size)
 	board := &Board{grid}
 	for j := range grid {
@@ -56,7 +59,6 @@ func NewBoard() *Board {
 }
 
 func (board *Board) Place(row, column int, entity Entity) {
-
 	for i := range entity.GetIntegrity() {
 		switch entity.GetDirection() {
 		case Down:

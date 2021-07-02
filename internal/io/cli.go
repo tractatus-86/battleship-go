@@ -88,12 +88,11 @@ func ParseSetupInput(input string) (CommandName, CommandParams, error) {
 		return validateCommandUnknown(commandInstruction)
 	}
 }
+
 func validateCommandPlaceShip(commandInstruction []string) (CommandName, CommandParams, error) {
 	if commandInstruction[0] != PlaceShip {
 		return "", nil, fmt.Errorf("unknown commmand %v", commandInstruction[0])
 	}
-
-	ok := true
 	var direction game.Direction
 	shipName, ok := game.ShipNames[commandInstruction[1]]
 	if !ok {
@@ -111,7 +110,6 @@ func validateCommandPlaceShip(commandInstruction []string) (CommandName, Command
 	default:
 		return "", nil, fmt.Errorf("no such directions %v choose: %v ", c, []string{game.Down, game.Right})
 	}
-
 	row, err := toGridRowIndex(string(commandInstruction[3][0]))
 	if err != nil {
 		return "", nil, err
@@ -124,7 +122,6 @@ func validateCommandPlaceShip(commandInstruction []string) (CommandName, Command
 	if err != nil {
 		return "", nil, err
 	}
-
 	return PlaceShip, &PlaceShipParams{shipName, direction, row, column}, nil
 }
 
@@ -147,6 +144,7 @@ func toGridColumnIndex(i int) (int, error) {
 		return -1, fmt.Errorf("%v is not a valid column", i)
 	}
 }
+
 func validateCommandFire(commandInstruction []string) (CommandName, CommandParams, error) {
 	if commandInstruction[0] != Fire {
 		return "", nil, fmt.Errorf("unknown commmand %v", commandInstruction[0])
@@ -165,6 +163,7 @@ func validateCommandFire(commandInstruction []string) (CommandName, CommandParam
 	}
 	return Fire, &FireParams{row, column}, nil
 }
+
 func validateCommandExit(commandInstruction []string) (CommandName, CommandParams, error) {
 	if commandInstruction[0] != Exit {
 		return "", nil, fmt.Errorf("unknown commmand %v", commandInstruction[0])
@@ -172,6 +171,7 @@ func validateCommandExit(commandInstruction []string) (CommandName, CommandParam
 	}
 	return Exit, &ExitParams{}, nil
 }
+
 func validateCommandUnknown(commandInstruction []string) (CommandName, CommandParams, error) {
 	return "", nil, fmt.Errorf("unknown commmand %v", commandInstruction[0])
 }
