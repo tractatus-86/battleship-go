@@ -42,10 +42,16 @@ func NewPrinter() *Printer {
 
 func (printer *Printer) PrintDisplay() {
 	fmt.Println(printer.page.String())
-	fmt.Printf("Input: %v\n", printer.input.String())
-	fmt.Printf("Response: %v\n", printer.result.String())
-	fmt.Printf("ERROR: %v\n", printer.err.String())
-	fmt.Println("Prompt: Input Command")
+	if printer.input.Len() > 0 {
+		fmt.Printf("Input: %v\n", printer.input.String())
+	}
+	if printer.result.Len() > 0 {
+		fmt.Printf("Response: %v\n", printer.result.String())
+	}
+	if printer.err.Len() > 0 {
+		fmt.Printf("ERROR: %v\n", printer.err.String())
+	}
+	fmt.Println("Input Command:")
 	printer.page.Reset()
 	printer.result.Reset()
 	printer.err.Reset()
