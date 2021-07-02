@@ -21,6 +21,7 @@ Inside the docker container run to get a example game
 ```sh
 ./battleship -input_file fullgame_test -output_file output
 ```
+or
 ```sh
 ./battleship < fullgame_test > output
 ```
