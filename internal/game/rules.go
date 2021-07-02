@@ -1,6 +1,9 @@
 package game
 
-import "fmt"
+import (
+	"battleship/internal/utils"
+	"fmt"
+)
 
 var GamePhase = Setup
 
@@ -11,7 +14,7 @@ type Effect = string
 const (
 	Setup    Phase  = "Setup"
 	Battle   Phase  = "Battle"
-	GameOver Phase  = "GameOver"
+	GameOver Phase  = "Game Over"
 	Hit      Effect = "Hit"
 	Miss     Effect = "Miss"
 	Sunk     Effect = "You Sunk My"
@@ -69,7 +72,7 @@ func (gameState *GameState) Fire(pRow1, pCol1 int) (string, error) {
 		return result, nil
 	}
 	if entity.GetState() {
-		result = fmt.Sprintf("%v %v", Sunk, entity.GetType())
+		result = fmt.Sprintf("%v %v!", Sunk, utils.CamelCase(string(entity.GetType())))
 	}
 	if allShipsSunk() {
 		gameState.gamePhase = GameOver
@@ -125,7 +128,7 @@ func shipCollisionDetection(row, col int, direction Direction, ship *Ship, board
 		}
 		shipD := board.Retrieve(iRow, iCol).GetContents().GetType()
 		if shipD != WATER {
-			return fmt.Errorf("%v collides with ship %v", ship.GetType(), shipD)
+			return fmt.Errorf("%v collides with ship %v", utils.CamelCase(string(ship.GetType())), utils.CamelCase(string(shipD)))
 		}
 	}
 	return nil
@@ -138,7 +141,7 @@ func (gameState *GameState) Exit() {
 func (gameState *GameState) PlaceShip(ship_name EntityName, direction Direction, row, col int) (string, error) {
 	ship := ships[ship_name]
 	if shipAlreadyPlaced(*ship) {
-		return "", fmt.Errorf("ship %v already placed", ship_name)
+		return "", fmt.Errorf("ship %v already placed", utils.CamelCase(string(ship_name)))
 	}
 	board := gameState.board
 	err := outOfBoundsCheck(row, col, direction, len(ship.integrity), board.grid)
@@ -153,9 +156,7 @@ func (gameState *GameState) PlaceShip(ship_name EntityName, direction Direction,
 	board.Place(row, col, ship)
 	ship.startPosition = board.Retrieve(row, col)
 	if allShipsPlaced() {
-		fmt.Println(gameState.gamePhase)
 		gameState.setGamePhase(Battle)
-		fmt.Println(gameState.gamePhase)
 	}
-	return fmt.Sprintf("%v %v", ship.class, Placed), nil
+	return fmt.Sprintf("%v %v", Placed, utils.CamelCase(string(ship_name))), nil
 }

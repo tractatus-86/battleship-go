@@ -4,6 +4,14 @@ import (
 	"battleship/internal/game"
 	"bytes"
 	"fmt"
+	"os"
+)
+
+type DisplayMode = string
+
+const (
+	Simple DisplayMode = "Simple"
+	Pretty DisplayMode = "Pretty"
 )
 
 const (
@@ -27,35 +35,82 @@ func toRow(i int) string {
 }
 
 type Printer struct {
-	input  *bytes.Buffer
-	page   *bytes.Buffer
-	result *bytes.Buffer
-	err    *bytes.Buffer
+	displayMode DisplayMode
+	info        *bytes.Buffer
+	input       *bytes.Buffer
+	page        *bytes.Buffer
+	result      *bytes.Buffer
+	err         *bytes.Buffer
+	outBuffer   *os.File
 }
 
-func NewPrinter() *Printer {
+func NewPrinter(displayMode DisplayMode, outBuffer *os.File) *Printer {
+	var info bytes.Buffer
 	var input bytes.Buffer
 	var page bytes.Buffer
 	var result bytes.Buffer
 	var err bytes.Buffer
-	return &Printer{&input, &page, &result, &err}
+	return &Printer{displayMode, &info, &input, &page, &result, &err, outBuffer}
 }
 
-func (printer *Printer) PrintDisplay() {
-	fmt.Println(printer.page.String())
-	if printer.input.Len() > 0 {
-		fmt.Printf("Input: %v\n", printer.input.String())
+func (printer *Printer) PrintInfo() {
+	displayMode := printer.displayMode
+	writer := printer.outBuffer
+	if printer.info.Len() > 0 {
+		label := ""
+		if displayMode == Pretty {
+			label = "\nPhase: "
+		}
+		writer.WriteString(fmt.Sprintf("%v%v\n", label, printer.info.String()))
 	}
-	if printer.result.Len() > 0 {
-		fmt.Printf("Response: %v\n", printer.result.String())
+}
+
+func (printer *Printer) PrintPage() {
+	displayMode := printer.displayMode
+	writer := printer.outBuffer
+	if displayMode == Pretty {
+		writer.WriteString(printer.page.String())
+		if printer.input.Len() > 0 {
+			writer.WriteString(fmt.Sprintf("Input: %v\n", printer.input.String()))
+		}
 	}
-	if printer.err.Len() > 0 {
-		fmt.Printf("ERROR: %v\n", printer.err.String())
-	}
-	fmt.Println("Input Command:")
 	printer.page.Reset()
+}
+
+func (printer *Printer) PrintResult() {
+	displayMode := printer.displayMode
+	writer := printer.outBuffer
+	if printer.result.Len() > 0 {
+		label := ""
+		if displayMode == Pretty {
+			label = "Response: "
+		}
+		writer.WriteString(fmt.Sprintf("%v%v\n", label, printer.result.String()))
+
+	}
 	printer.result.Reset()
+}
+func (printer *Printer) PrintError() {
+	displayMode := printer.displayMode
+	writer := printer.outBuffer
+	if displayMode == Pretty && printer.err.Len() > 0 {
+		writer.WriteString(fmt.Sprintf("ERROR: %v\n", printer.err.String()))
+	}
 	printer.err.Reset()
+}
+
+func (printer *Printer) PrintAll() {
+	displayMode := printer.displayMode
+	writer := printer.outBuffer
+	if displayMode == Pretty {
+		printer.PrintInfo()
+	}
+	printer.PrintPage()
+	printer.PrintResult()
+	printer.PrintError()
+	if displayMode == Pretty {
+		writer.WriteString(fmt.Sprintln("Input Command:"))
+	}
 	printer.input.Reset()
 }
 
@@ -86,6 +141,11 @@ func (printer *Printer) UpdateInput(input string) {
 func (printer *Printer) UpdateResult(result string) {
 	printer.result.Reset()
 	printer.result.WriteString(result)
+}
+
+func (printer *Printer) UpdateInfo(info string) {
+	printer.info.Reset()
+	printer.info.WriteString(info)
 }
 
 func (printer *Printer) UpdateError(err error) {
@@ -128,7 +188,6 @@ func writeCell(pos *game.Position, page *bytes.Buffer) {
 		} else {
 			page.WriteString(Something)
 		}
-
 	}
 }
 
@@ -145,5 +204,4 @@ func (printer *Printer) UpdateGameGrid(grid game.Grid) {
 		}
 		writeRowTerminator(page)
 	}
-
 }

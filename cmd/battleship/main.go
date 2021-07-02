@@ -1,82 +1,54 @@
 package main
 
 import (
+	"battleship/internal/battleship"
 	"battleship/internal/game"
 	"battleship/internal/io"
+	"flag"
 	"fmt"
+	"os"
+	"strings"
 )
 
 func main() {
 
+	inBuffer, outBuffer, display := parseArgs()
 	gameState := game.NewGame()
-	interpreter := io.NewCommandInterpreter()
-	printer := io.NewPrinter()
-	setup(interpreter, gameState, printer)
-	battle(interpreter, gameState, printer)
-	gameover(interpreter, gameState, printer)
-
+	interpreter := io.NewCommandInterpreter(inBuffer)
+	printer := io.NewPrinter(display, outBuffer)
+	defer inBuffer.Close()
+	defer outBuffer.Close()
+	battleship.Start(interpreter, gameState, printer)
 }
-func gameover(interpreter *io.CommandInterpreter, gameState *game.GameState, printer *io.Printer) {
-	fmt.Println(gameState.GetGamePhase())
-}
-func setup(interpreter *io.CommandInterpreter, gameState *game.GameState, printer *io.Printer) {
-	printer.UpdateGameGrid(gameState.GetBoard().GetGrid())
-	printer.PrintDisplay()
-	for gameState.GetGamePhase() == game.Setup && interpreter.Next() {
 
-		input := interpreter.Content()
-		printer.UpdateInput(input)
-		_, commandParams, err := io.ParseSetupInput(input)
+func parseArgs() (*os.File, *os.File, io.DisplayMode) {
+	inputFile := flag.String("input_file", "", "input file of commands")
+	outputFile := flag.String("output_file", "", "output file of responses")
+	displayMode := flag.Bool("pretty", false, "parse printer mode")
+	flag.Parse()
 
+	inBuffer := os.Stdin
+	var err error
+	if strings.TrimSpace(*inputFile) != "" {
+		inBuffer, err = os.OpenFile(*inputFile, os.O_RDONLY, 0644)
 		if err != nil {
-			printer.UpdateError(err)
+			fmt.Printf("Error: %v\n", err)
+			os.Exit(1)
 		}
-		switch v := commandParams.(type) {
-		case *io.PlaceShipParams:
-			effect, err := gameState.PlaceShip(v.ShipName, v.Direction, v.Row, v.Col)
-			if err != nil {
-				printer.UpdateError(err)
-
-			} else {
-				printer.UpdateResult(effect)
-			}
-
-		case *io.ExitParams:
-			gameState.Exit()
-		}
-		printer.UpdateGameGrid(gameState.GetBoard().GetGrid())
-		printer.PrintDisplay()
 	}
 
-}
-func battle(interpreter *io.CommandInterpreter, gameState *game.GameState, printer *io.Printer) {
-	printer.UpdateGameGrid(gameState.GetBoard().GetGrid())
-	printer.PrintDisplay()
-	for gameState.GetGamePhase() == game.Battle && interpreter.Next() {
-
-		input := interpreter.Content()
-		printer.UpdateInput(input)
-		_, CommandParams, err := io.ParseBattleInput(input)
+	outBuffer := os.Stdout
+	if strings.TrimSpace(*outputFile) != "" {
+		outBuffer, err = os.OpenFile(*outputFile, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
 		if err != nil {
-			printer.UpdateError(err)
-
+			fmt.Printf("Error: %v\n", err)
+			os.Exit(1)
 		}
-
-		switch v := CommandParams.(type) {
-		case *io.FireParams:
-			effect, err := gameState.Fire(v.Row, v.Col)
-			if err != nil {
-				printer.UpdateError(err)
-
-			} else {
-				printer.UpdateResult(effect)
-			}
-		case *io.ExitParams:
-			gameState.Exit()
-		}
-		printer.UpdateGameGrid(gameState.GetBoard().GetGrid())
-		printer.PrintDisplay()
-
 	}
 
+	display := io.Simple
+	if *displayMode {
+		display = io.Pretty
+	}
+	return inBuffer, outBuffer, display
 }

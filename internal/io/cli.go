@@ -52,8 +52,8 @@ type CommandInterpreter struct {
 	scanner *bufio.Scanner
 }
 
-func NewCommandInterpreter() *CommandInterpreter {
-	return &CommandInterpreter{bufio.NewScanner(os.Stdin)}
+func NewCommandInterpreter(osFile *os.File) *CommandInterpreter {
+	return &CommandInterpreter{bufio.NewScanner(osFile)}
 }
 
 func (commandInterpreter *CommandInterpreter) Next() bool {
