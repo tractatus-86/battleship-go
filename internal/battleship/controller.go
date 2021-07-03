@@ -6,7 +6,6 @@ import (
 )
 
 func Start(interpreter *io.CommandInterpreter, gameState *game.GameState, printer *io.Printer) {
-
 	sequence(interpreter, gameState, printer)
 }
 
@@ -19,12 +18,16 @@ func sequence(interpreter *io.CommandInterpreter, gameState *game.GameState, pri
 func gameover(interpreter *io.CommandInterpreter, gameState *game.GameState, printer *io.Printer) {
 	printer.UpdateInfo(gameState.GetGamePhase())
 	printer.PrintInfo()
+
 }
 func setup(interpreter *io.CommandInterpreter, gameState *game.GameState, printer *io.Printer) {
 	printer.UpdateGameGrid(gameState.GetBoard().GetGrid())
+	printer.UpdateInfo(gameState.GetGamePhase())
 	printer.PrintAll()
+	if interpreter.IsStdIn() {
+		printer.PrintInput()
+	}
 	for gameState.GetGamePhase() == game.Setup && interpreter.Next() {
-		printer.UpdateInfo(gameState.GetGamePhase())
 		input := interpreter.Content()
 		printer.UpdateInput(input)
 		_, commandParams, err := io.ParseSetupInput(input)
@@ -46,15 +49,17 @@ func setup(interpreter *io.CommandInterpreter, gameState *game.GameState, printe
 			gameState.Exit()
 		}
 		printer.UpdateGameGrid(gameState.GetBoard().GetGrid())
+		printer.ResetAnimation(750)
 		printer.PrintAll()
+		if interpreter.IsStdIn() {
+			printer.PrintInput()
+		}
 	}
 
 }
 func battle(interpreter *io.CommandInterpreter, gameState *game.GameState, printer *io.Printer) {
-	printer.UpdateGameGrid(gameState.GetBoard().GetGrid())
-	printer.PrintAll()
+	printer.UpdateInfo(gameState.GetGamePhase())
 	for gameState.GetGamePhase() == game.Battle && interpreter.Next() {
-		printer.UpdateInfo(gameState.GetGamePhase())
 		input := interpreter.Content()
 		printer.UpdateInput(input)
 		_, CommandParams, err := io.ParseBattleInput(input)
@@ -76,8 +81,11 @@ func battle(interpreter *io.CommandInterpreter, gameState *game.GameState, print
 			gameState.Exit()
 		}
 		printer.UpdateGameGrid(gameState.GetBoard().GetGrid())
+		printer.ResetAnimation(750)
 		printer.PrintAll()
-
+		if interpreter.IsStdIn() {
+			printer.PrintInput()
+		}
 	}
 
 }

@@ -50,10 +50,16 @@ const (
 
 type CommandInterpreter struct {
 	scanner *bufio.Scanner
+	stdIn   bool
 }
 
 func NewCommandInterpreter(osFile *os.File) *CommandInterpreter {
-	return &CommandInterpreter{bufio.NewScanner(osFile)}
+	stdIn := osFile == os.Stdin
+	return &CommandInterpreter{bufio.NewScanner(osFile), stdIn}
+}
+
+func (commandInterpreter *CommandInterpreter) IsStdIn() bool {
+	return commandInterpreter.stdIn
 }
 
 func (commandInterpreter *CommandInterpreter) Next() bool {

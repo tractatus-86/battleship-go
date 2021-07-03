@@ -68,6 +68,9 @@ func (gameState *GameState) Fire(pRow1, pCol1 int) (string, error) {
 		result = Hit
 		entity.GetIntegrity()[pCol1-sCol1] = true
 	default:
+		if entity.GetIntegrity()[0] {
+			return "", fmt.Errorf("row: %v column: %v already marked", pRow1, pCol1)
+		}
 		entity.GetIntegrity()[0] = true
 		return result, nil
 	}

@@ -33,6 +33,9 @@ or for interactive mode
 ```
 
 ## How to play
+
+*Note : The command interpreter is case insensitive*
+
 Grid
 ```
     1   2   3   4   5   6   7   8   9   10   

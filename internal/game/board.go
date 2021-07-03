@@ -6,6 +6,10 @@ type Position struct {
 	entity *Entity
 }
 
+func newPosition(row, col int, entity *Entity) *Position {
+	return &Position{row, col, entity}
+}
+
 func (position *Position) GetRow() int {
 	return position.row
 }
@@ -48,12 +52,9 @@ func NewBoard() *Board {
 		row := make([]*Position, size)
 		grid[j] = row
 		for i := range row {
-
 			board.Place(j, i, NewWater())
-
 			board.Retrieve(j, i).GetContents().setStartPosition(board.grid[j][i])
 		}
-
 	}
 	return board
 }
@@ -62,12 +63,11 @@ func (board *Board) Place(row, column int, entity Entity) {
 	for i := range entity.GetIntegrity() {
 		switch entity.GetDirection() {
 		case Down:
-			board.grid[row+i][column] = &Position{row + i, column, &entity}
+			board.grid[row+i][column] = newPosition(row+i, column, &entity)
 		default:
-			board.grid[row][column+i] = &Position{row, column + i, &entity}
+			board.grid[row][column+i] = newPosition(row, column+i, &entity)
 		}
 	}
-
 }
 
 func (board *Board) Retrieve(row, column int) *Position {

@@ -5,6 +5,8 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"os/exec"
+	"time"
 )
 
 type DisplayMode = string
@@ -90,6 +92,7 @@ func (printer *Printer) PrintResult() {
 	}
 	printer.result.Reset()
 }
+
 func (printer *Printer) PrintError() {
 	displayMode := printer.displayMode
 	writer := printer.outBuffer
@@ -99,19 +102,33 @@ func (printer *Printer) PrintError() {
 	printer.err.Reset()
 }
 
-func (printer *Printer) PrintAll() {
+func (printer *Printer) PrintInput() {
 	displayMode := printer.displayMode
 	writer := printer.outBuffer
+	if displayMode == Pretty {
+		writer.WriteString(fmt.Sprintln("Input Command:"))
+	}
+}
+
+func (printer *Printer) PrintAll() {
+
+	displayMode := printer.displayMode
 	if displayMode == Pretty {
 		printer.PrintInfo()
 	}
 	printer.PrintPage()
 	printer.PrintResult()
 	printer.PrintError()
-	if displayMode == Pretty {
-		writer.WriteString(fmt.Sprintln("Input Command:"))
-	}
 	printer.input.Reset()
+}
+
+func (printer *Printer) ResetAnimation(secFreq time.Duration) {
+	if printer.outBuffer == os.Stdout {
+		time.Sleep(secFreq * time.Millisecond)
+		cmd := exec.Command("clear")
+		cmd.Stdout = os.Stdout
+		cmd.Run()
+	}
 }
 
 func writeColumnLabels(page *bytes.Buffer, gridLen int) {
