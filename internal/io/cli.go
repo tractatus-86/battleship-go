@@ -71,7 +71,7 @@ func (commandInterpreter *CommandInterpreter) Content() string {
 }
 
 func ParseBattleInput(input string) (CommandName, CommandParams, error) {
-	commandInstruction := strings.Split(strings.ToUpper(input), " ")
+	commandInstruction := strings.Split(strings.ToUpper(strings.Trim(input, "\xef\xbb\xbf")), " ")
 	switch len(commandInstruction) {
 	case 2:
 		return validateCommandFire(commandInstruction)
@@ -84,7 +84,7 @@ func ParseBattleInput(input string) (CommandName, CommandParams, error) {
 }
 
 func ParseSetupInput(input string) (CommandName, CommandParams, error) {
-	commandInstruction := strings.Split(strings.ToUpper(input), " ")
+	commandInstruction := strings.Split(strings.ToUpper(strings.Trim(input, "\xef\xbb\xbf")), " ")
 	switch len(commandInstruction) {
 	case 4:
 		return validateCommandPlaceShip(commandInstruction)
