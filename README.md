@@ -31,6 +31,10 @@ or for interactive mode
 ```sh
 ./battleship -pretty
 ```
+or for animated output mode
+```sh
+./battleship -input_file fullgame_test -pretty
+```
 
 ## How to play
 
